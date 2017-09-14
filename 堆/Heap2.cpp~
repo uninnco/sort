@@ -1,0 +1,127 @@
+/**
+* @note 自顶而下/自底而上构建堆
+*/
+#include <iostream>     // cout
+
+using namespace std;
+
+template<class T,size_t N>
+void PrintArray(const T (&arr)[N],size_t len = N){
+	cout << '{';
+	size_t i(0);
+	for(auto d:arr){
+		cout << d;
+		if(++i != len) {
+			cout<<',';
+		}else{
+			break;
+		}
+	}
+	cout << '}';
+}
+
+/**
+* @brief 判断数组是否堆
+*/
+template<class T,size_t N>
+bool IsHeap(T (&arr)[N],size_t len = N){
+	if(1 == len){
+		return true;
+	}
+	for(size_t i=0,last=len/2-1;i<=last;i++){
+		if(arr[i] < arr[i*2+1]){
+			return false;
+		}
+		if(i*2+2<len and arr[i] < arr[i*2+2]){
+			return false;
+		}
+	}
+	return true;
+}
+/**
+* @brief 自底而上构建堆
+*/
+template<class T,size_t N>
+void MakeHeapD2T(T (&arr)[N]){
+	for(ssize_t i=N/2-1;i>=0;i--){
+		size_t cur(i);
+		do{
+			// 父节点值小于左子结点
+			if(cur*2+2<N and arr[cur] < arr[cur*2+2]){
+				if(arr[cur*2+1] < arr[cur*2+2]){
+					swap(arr[cur],arr[cur*2+2]);
+					cur = cur*2+2;
+				}else{
+					swap(arr[cur],arr[cur*2+1]);
+					cur = cur*2+1;
+				}
+			// 父节点值小于左子结点(包含只有左节点的情况)
+			}else if(cur*2+1<N and arr[cur] < arr[cur*2+1]){
+				swap(arr[cur],arr[cur*2+1]);
+				cur = cur*2+1;
+			}else{
+				break;
+			}
+		}while(cur < N);
+		// PrintArray(arr);
+		// cout << endl;
+	}
+}
+
+/**
+* @brief 自顶而下构建堆
+*/
+template<class T,size_t N>
+void MakeHeapT2D(T (&arr)[N]){
+	T temp[N];
+	temp[0] = arr[0];
+	for(size_t i=1;i<N;i++){
+		temp[i] = arr[i];
+		size_t cur(i);
+		do{
+			// 当前结点大于父节点，交换结点的值。
+			if(temp[(cur-1)/2] < temp[cur]){
+				swap(temp[(cur-1)/2],temp[cur]);
+				cur = (cur-1)/2;// 下标改为父节点的下标
+			}else{
+				break;
+			}
+		}while(0 != cur);
+		//PrintArray(temp,i+1);
+	}
+	copy(begin(temp),end(temp),arr);
+}
+
+template<class T,size_t N>
+void TestT2D(T (&arr)[N]){
+	MakeHeapT2D(arr);
+	PrintArray(arr);
+	cout << ":" << IsHeap(arr) << endl;
+}
+
+template<class T,size_t N>
+void TestD2T(T (&arr)[N]){
+	MakeHeapD2T(arr);
+	PrintArray(arr);
+	cout << ":" << IsHeap(arr) << endl;
+}
+int main(){
+	cout <<boolalpha;
+	{
+		int arr[] = {2,9,1,0,8,7,10};
+		TestT2D(arr);
+	}	
+	{
+		int arr[] = {2,9,1,0,8,7,10};
+		TestD2T(arr);
+	}
+	{
+		int arr[] = {2,8,6,1,10,15,3,12,11};
+		TestT2D(arr);
+	}
+	{
+		int arr[] = {2,8,6,1,10,15,3,12,11};
+		TestD2T(arr);
+	}
+
+}
